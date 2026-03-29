@@ -1,0 +1,7 @@
+name: RandomServerIcon
+version: 1.0.0
+main: com.schoperation.randomservericon.RandomServerIcon
+description: Sends a random server icon every refresh
+author: Schoperation
+website: https://github.com/Schoperation
+api-version: "1.21.11"
