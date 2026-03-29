@@ -1,4 +1,4 @@
-package com.schoperation.randomservericon;
+package com.schoperation.randomservericon.file;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -23,15 +23,19 @@ public class IconLoader {
         if (!iconDirectories.exists()) {
             boolean created = iconDirectories.mkdir();
             if (!created) {
-                logger.severe(
+                logger.warning(
                     "Could not find or create server-icons directory. Please ensure it exists at the root of your server, and restart."
                 );
                 return null;
             }
+
+            logger.info(
+                "Created server-icons folder; place your server icons in here."
+            );
         }
 
         if (!iconDirectories.isDirectory()) {
-            logger.severe(
+            logger.warning(
                 "server-icons already exists, but it's not a directory. Please remove/rename the existing file and restart the server."
             );
             return null;
@@ -48,18 +52,38 @@ public class IconLoader {
                 continue;
             }
 
-            if (!entry.canRead()) {
+            if (!entry.getName().endsWith(".png")) {
                 logger.warning(
-                    "Could not read " +
-                        entry.getName() +
-                        " for some reason; skipping..."
+                    "Skipping " + entry.getName() + " as it is not a png."
                 );
                 continue;
             }
 
-            logger.info("File found: " + entry.getName());
+            if (!entry.canRead()) {
+                logger.warning(
+                    "Skipping " +
+                        entry.getName() +
+                        " as it cannot be read. Check the file permissions."
+                );
+                continue;
+            }
 
-            //icon = server.loadServerIcon(entry);
+            try {
+                CachedServerIcon icon = server.loadServerIcon(entry);
+                icons.add(icon);
+            } catch (IllegalArgumentException e) {
+                logger.warning(
+                    "Skipping " +
+                        entry.getName() +
+                        " as it appears to be null; ensure it is a 64x64 png file."
+                );
+            } catch (Exception e) {
+                logger.warning(
+                    "Skipping " +
+                        entry.getName() +
+                        " as it does not fit the server icon criteria; ensure it is a 64x64 png file."
+                );
+            }
         }
 
         return icons;
